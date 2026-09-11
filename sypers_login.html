@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log ind | Sypers</title>
+  <style>
+    :root { --ink:#263238; --muted:#66747a; --orange:#d96b3b; --dark-orange:#a94d27; --line:#eadfd2; }
+    * { box-sizing:border-box; }
+    body { display:grid; place-items:center; min-height:100vh; margin:0; padding:18px; color:var(--ink); background:linear-gradient(145deg,#fffaf2,#f5eee5); font-family:Georgia,"Times New Roman",serif; }
+    .login { width:min(100%,430px); padding:30px 24px; border:1px solid var(--line); border-radius:26px; background:#fff; box-shadow:0 20px 60px rgba(92,61,36,.14); }
+    .logo { display:grid; place-items:center; width:58px; height:58px; margin:0 auto 12px; border-radius:18px; color:#fff; background:var(--orange); font-size:1.8rem; }
+    h1 { margin:0; text-align:center; font-size:2.15rem; }
+    .intro { margin:10px 0 24px; color:var(--muted); text-align:center; line-height:1.5; }
+    label { display:block; margin:16px 0 7px; font-weight:bold; }
+    input { width:100%; padding:14px; border:2px solid var(--line); border-radius:11px; color:var(--ink); background:#fffdf9; font-size:1.05rem; }
+    input:focus { outline:3px solid #f5cdb9; border-color:var(--orange); }
+    button { width:100%; min-height:48px; margin-top:20px; border:0; border-radius:11px; color:#fff; background:var(--orange); font:inherit; font-weight:bold; cursor:pointer; }
+    button:hover { background:var(--dark-orange); }
+    .secondary { margin-top:10px; color:var(--dark-orange); border:1px solid #e6b49e; background:#fff7f1; }
+    .message { min-height:25px; margin-top:15px; font-weight:bold; line-height:1.4; }
+    .error { color:#a84949; } .success { color:#28785f; }
+    .switch { display:block; margin-top:22px; color:var(--dark-orange); text-align:center; text-decoration:underline; cursor:pointer; }
+    .privacy { margin:20px 0 0; color:var(--muted); text-align:center; font-size:.84rem; line-height:1.45; }
+  </style>
+</head>
+<body>
+  <main class="login">
+    <div class="logo" aria-hidden="true">🛡️</div>
+    <h1 id="title">Log ind på Sypers</h1>
+    <p class="intro" id="intro">Log ind for at bruge din personlige sikkerhed.</p>
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required placeholder="din@email.dk">
+      <label for="password">Adgangskode</label>
+      <input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="Mindst 6 tegn">
+      <button type="submit" id="submitButton">Log ind</button>
+    </form>
+    <button class="secondary" id="guestButton" type="button">Fortsæt uden login</button>
+    <div class="message" id="message" role="alert" aria-live="polite"></div>
+    <span class="switch" id="switchMode">Opret en ny konto</span>
+    <p class="privacy">Din konto gemmes kun i denne browser i prototypen. Brug ikke en adgangskode, du bruger andre steder.</p>
+  </main>
+  <script>
+    const accountKey = "sypersAccount";
+    const sessionKey = "sypersLoggedIn";
+    let createMode = false;
+    const $ = id => document.getElementById(id);
+
+    if (localStorage.getItem(sessionKey)) {
+      window.location.replace("sypers.html");
+    }
+
+    async function hashPassword(password) {
+      const data = new TextEncoder().encode(password);
+      const hash = await crypto.subtle.digest("SHA-256", data);
+      return [...new Uint8Array(hash)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    function showMessage(text, type) {
+      $("message").textContent = text;
+      $("message").className = `message ${type}`;
+    }
+
+    $("loginForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const email = $("email").value.trim().toLowerCase();
+      const password = $("password").value;
+      const account = JSON.parse(localStorage.getItem(accountKey) || "null");
+      const passwordHash = await hashPassword(password);
+
+      if (createMode) {
+        if (account) {
+          showMessage("Der findes allerede en konto i denne browser. Log ind i stedet.", "error");
+          return;
+        }
+        localStorage.setItem(accountKey, JSON.stringify({ email, passwordHash }));
+      } else if (!account || account.email !== email || account.passwordHash !== passwordHash) {
+        showMessage("Email eller adgangskode er forkert.", "error");
+        return;
+      }
+
+      localStorage.setItem(sessionKey, JSON.stringify({ email, loggedInAt: Date.now() }));
+      window.location.href = "sypers.html";
+    });
+
+    $("switchMode").addEventListener("click", () => {
+      createMode = !createMode;
+      $("title").textContent = createMode ? "Opret konto på Sypers" : "Log ind på Sypers";
+      $("intro").textContent = createMode ? "Opret din konto med email og adgangskode." : "Log ind for at bruge din personlige sikkerhed.";
+      $("submitButton").textContent = createMode ? "Opret konto" : "Log ind";
+      $("password").autocomplete = createMode ? "new-password" : "current-password";
+      $("switchMode").textContent = createMode ? "Jeg har allerede en konto" : "Opret en ny konto";
+      $("message").textContent = "";
+    });
+
+    $("guestButton").addEventListener("click", () => {
+      window.location.href = "sypers.html";
+    });
+  </script>
+</body>
+</html>
