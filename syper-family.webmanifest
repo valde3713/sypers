@@ -1,0 +1,29 @@
+{
+  "name": "Syper Family",
+  "short_name": "Syper Family",
+  "id": "/syper-family",
+  "description": "Privat GPS- og batterioverblik for pårørende.",
+  "lang": "da",
+  "dir": "ltr",
+  "start_url": "/syper-family-download.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "prefer_related_applications": false,
+  "background_color": "#211c19",
+  "theme_color": "#d96b3b",
+  "icons": [
+    {
+      "src": "/sypers-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/sypers-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

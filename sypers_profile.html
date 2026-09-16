@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Din profil | Sypers</title>
+  <style>
+    :root { --ink:#263238; --muted:#66747a; --orange:#d96b3b; --dark-orange:#a94d27; --line:#eadfd2; }
+    * { box-sizing:border-box; }
+    body { display:grid; place-items:center; min-height:100vh; margin:0; padding:18px; color:var(--ink); background:linear-gradient(145deg,#fffaf2,#f5eee5); font-family:Georgia,"Times New Roman",serif; }
+    .profile { width:min(100%,430px); padding:30px 24px; border:1px solid var(--line); border-radius:26px; background:#fff; box-shadow:0 20px 60px rgba(92,61,36,.14); }
+    .logo { display:grid; place-items:center; width:58px; height:58px; margin:0 auto 12px; border-radius:18px; color:#fff; background:var(--orange); font-size:1.8rem; }
+    h1 { margin:0; text-align:center; font-size:2.05rem; }
+    .intro { margin:10px 0 24px; color:var(--muted); text-align:center; line-height:1.5; }
+    label { display:block; margin:16px 0 7px; font-weight:bold; }
+    input { width:100%; padding:14px; border:2px solid var(--line); border-radius:11px; color:var(--ink); background:#fffdf9; font-size:1.05rem; }
+    input:focus { outline:3px solid #f5cdb9; border-color:var(--orange); }
+    button { width:100%; min-height:48px; margin-top:22px; border:0; border-radius:11px; color:#fff; background:var(--orange); font:inherit; font-weight:bold; cursor:pointer; }
+    button:hover { background:var(--dark-orange); }
+    .message { min-height:25px; margin-top:15px; color:#a84949; font-weight:bold; line-height:1.4; }
+    .privacy { margin:20px 0 0; color:var(--muted); text-align:center; font-size:.84rem; line-height:1.45; }
+  </style>
+</head>
+<body>
+  <main class="profile">
+    <div class="logo" aria-hidden="true">👤</div>
+    <h1>Fortæl lidt om dig</h1>
+    <p class="intro">Din email og adgangskode er bekræftet. Udfyld din profil, så du kan komme i gang med Sypers.</p>
+    <form id="profileForm">
+      <label for="name">Navn</label>
+      <input id="name" autocomplete="name" required placeholder="Dit navn">
+      <label for="age">Alder</label>
+      <input id="age" type="number" min="1" max="120" required placeholder="Din alder">
+      <label for="phone">Dit telefonnummer</label>
+      <input id="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="F.eks. 12 34 56 78">
+      <button type="submit">Gem profil og fortsæt</button>
+    </form>
+    <div class="message" id="message" role="alert" aria-live="polite"></div>
+    <p class="privacy">Oplysningerne gemmes kun i denne browsers lokale lager i prototypen.</p>
+  </main>
+  <script>
+    const accountKey = "sypersAccount";
+    const pendingAccountKey = "sypersPendingAccount";
+    const sessionKey = "sypersLoggedIn";
+    const pending = JSON.parse(localStorage.getItem(pendingAccountKey) || "null");
+    if (!pending) window.location.replace("sypers_login.html");
+
+    document.getElementById("profileForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const account = {
+        ...pending,
+        profile: {
+          name: document.getElementById("name").value.trim(),
+          age: Number(document.getElementById("age").value),
+          phone: document.getElementById("phone").value.trim()
+        }
+      };
+      localStorage.setItem(accountKey, JSON.stringify(account));
+      localStorage.removeItem(pendingAccountKey);
+      localStorage.setItem(sessionKey, JSON.stringify({ email: account.email, loggedInAt: Date.now() }));
+      window.location.href = "sypers.html";
+    });
+  </script>
+</body>
+</html>

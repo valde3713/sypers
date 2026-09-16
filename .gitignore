@@ -1,0 +1,14 @@
+# Local runtime data and credentials
+sypers-location.json
+sypers-visitor-stats.json
+*.session
+.env
+
+# Android and local build output
+.gradle/
+**/build/
+*.apk
+
+# Local tooling and caches
+__pycache__/
+.DS_Store

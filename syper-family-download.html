@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#d96b3b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Syper Family">
+  <title>Hent Syper Family</title>
+  <link rel="manifest" href="/syper-family.webmanifest">
+  <link rel="apple-touch-icon" href="/sypers-icon-192.png">
+  <style>
+    :root { --ink:#263238; --muted:#66747a; --orange:#d96b3b; --dark:#a94d27; --line:#eadfd2; }
+    * { box-sizing:border-box; }
+    body { display:grid; place-items:center; min-height:100vh; margin:0; padding:18px; color:var(--ink); background:linear-gradient(145deg,#fffaf2,#f5eee5); font-family:Georgia,"Times New Roman",serif; }
+    main { width:min(100%,500px); padding:30px 24px; border:1px solid var(--line); border-radius:26px; background:#fff; box-shadow:0 20px 60px rgba(92,61,36,.14); }
+    .logo { display:grid; place-items:center; width:64px; height:64px; margin:0 auto 14px; border-radius:20px; color:#fff; background:var(--orange); font-size:2rem; }
+    h1 { margin:0; text-align:center; font-size:2.2rem; } p { color:var(--muted); line-height:1.5; text-align:center; }
+    a, button { display:block; width:100%; min-height:48px; margin-top:14px; padding:13px 16px; border:0; border-radius:11px; color:#fff; background:var(--orange); font:inherit; font-weight:bold; text-align:center; text-decoration:none; cursor:pointer; }
+    a:hover, button:hover { background:var(--dark); }
+    .secondary { color:var(--dark); border:1px solid #e6b49e; background:#fff7f1; }
+    section { margin-top:24px; padding-top:18px; border-top:1px solid var(--line); }
+    h2 { margin:0 0 8px; font-size:1.25rem; } ol { margin:8px 0 0; padding-left:22px; color:var(--muted); line-height:1.7; }
+    .note { font-size:.9rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="logo" aria-hidden="true">👨‍👩‍👧</div>
+    <h1>Hent Syper Family</h1>
+    <p>Hent Syper Family som app til din håndholdte Android-enhed. Appen bruger den serveradresse, du selv indtaster, og er ikke bundet til ngrok.</p>
+    <a href="/syper-family.apk">Download Syper Family til Android</a>
+    <a class="secondary" href="/family-track.html">Åbn Syper Family-sporing</a>
+    <section>
+      <h2>Håndholdt Android</h2>
+      <ol>
+        <li>Tryk på <strong>Download Syper Family til Android</strong>.</li>
+        <li>Åbn APK-filen og tillad installation, hvis Android spørger.</li>
+        <li>Åbn Syper Family fra app-listen og indtast din faste serveradresse.</li>
+      </ol>
+    </section>
+    <p class="note">Syper Family er nu kun til håndholdte Android-enheder.</p>
+  </main>
+</body>
+</html>

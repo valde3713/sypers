@@ -1,0 +1,16 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "dk.sypers.app"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "dk.sypers.app"
+        minSdk 23
+        targetSdk 35
+        versionCode 16
+        versionName "1.4.9"
+    }
+}

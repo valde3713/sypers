@@ -1,0 +1,28 @@
+{
+  "name": "Sypers",
+  "short_name": "Sypers",
+  "description": "Tryg telefoni til at tjekke og blokere usikre numre.",
+  "lang": "da",
+  "dir": "ltr",
+  "start_url": "/sypers_login.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "prefer_related_applications": false,
+  "background_color": "#fffaf2",
+  "theme_color": "#d96b3b",
+  "icons": [
+    {
+      "src": "/sypers-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/sypers-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

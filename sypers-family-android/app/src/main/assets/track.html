@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#d96b3b">
+  <link rel="manifest" href="/syper-family.webmanifest">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <title>Syper Family privat sporing</title>
+  <style>
+    body { margin: 0; padding: 24px; background: #211c19; color: #fffaf2; font: 16px system-ui, sans-serif; }
+    main { max-width: 760px; margin: auto; }
+    input, button { width: 100%; box-sizing: border-box; padding: 12px; margin: 7px 0; border-radius: 8px; border: 1px solid #77685c; font: inherit; }
+    button { background: #d96b3b; border: 0; color: white; cursor: pointer; }
+    #map { height: 360px; margin-top: 18px; border: 1px solid #77685c; border-radius: 12px; overflow: hidden; background: #332a24; }
+    #battery { margin: 12px 0; padding: 14px; border: 1px solid #77685c; border-radius: 10px; background: #332a24; }
+    .hidden { display: none; } .status { color: #f2b28f; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Syper Family privat sporing</h1>
+    <section id="login">
+      <p>Log ind først. Derefter skal Sypers-mobilen godkende GPS-parringen første gang.</p>
+      <input id="username" autocomplete="username" placeholder="Brugernavn">
+      <input id="password" type="password" autocomplete="current-password" placeholder="Adgangskode">
+      <input id="pairingCode" inputmode="numeric" maxlength="6" placeholder="Parringskode fra Sypers">
+      <button id="loginButton">Log ind</button>
+      <button id="unpairButton" type="button">Fjern parring</button>
+      <p id="loginMessage"></p>
+    </section>
+    <section id="tracking" class="hidden">
+      <p class="status" id="status">Henter status...</p>
+      <div id="battery">Batteri: henter...</div>
+      <button id="refresh">Opdater placering</button>
+      <div id="map" aria-label="Indbygget GPS-kort"></div>
+    </section>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sypers-sw.js").catch(() => {});
+    }
+    const $ = id => document.getElementById(id);
+    let authenticated = false;
+    let map;
+    let marker;
+    const SERVER_URL = "https://catnap-frill-jolliness.ngrok-free.dev";
+    function apiUrl(path) {
+      return `${SERVER_URL}${path}`;
+    }
+    function initializeMap() {
+      if (map || !window.L) return;
+      map = L.map("map").setView([55.6761, 12.5683], 5);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap-bidragsydere"
+      }).addTo(map);
+    }
+    function updateMap(data) {
+      initializeMap();
+      if (!map || !data.updatedAt) return;
+      const position = [Number(data.latitude), Number(data.longitude)];
+      if (!marker) marker = L.marker(position).addTo(map);
+      else marker.setLatLng(position);
+      marker.bindPopup("Seneste position").openPopup();
+      map.setView(position, 15);
+      setTimeout(() => map.invalidateSize(), 0);
+    }
+    async function loadLocation() {
+      if (!authenticated) return;
+      try {
+        const response = await fetch(apiUrl("/api/location"), {
+          cache: "no-store",
+          credentials: "same-origin"
+        });
+        if (response.status === 401) {
+          authenticated = false;
+          $("tracking").classList.add("hidden");
+          $("login").classList.remove("hidden");
+          $("loginMessage").textContent = "Log ind igen for at se GPS-placeringen.";
+          return;
+        }
+        if (!response.ok) throw new Error("Serverfejl");
+        const data = await response.json();
+        $("status").textContent = data.updatedAt
+          ? `Sidst opdateret: ${data.updatedAt} · Nøjagtighed: ${Math.round(data.accuracy || 0)} m · Batteri: ${data.battery >= 0 ? data.battery + "%" : "ukendt"}${data.charging ? " · Oplader" : ""}`
+          : "Mobilen har endnu ikke sendt en GPS-placering.";
+        $("battery").textContent = data.battery >= 0
+          ? `Batteri: ${data.battery}%${data.charging ? " · Oplader" : ""}`
+          : "Batteri: ingen data endnu";
+        updateMap(data);
+      } catch (error) {
+        $("status").textContent = "GPS-siden kan ikke få kontakt til serveren.";
+      }
+    }
+    $("loginButton").onclick = async () => {
+      $("loginMessage").textContent = "Logger ind...";
+      try {
+        const code = $("pairingCode").value.trim();
+        if (!/^\d{6}$/.test(code)) {
+          $("loginMessage").textContent = "Skriv den 6-cifrede kode fra Sypers.";
+          return;
+        }
+        const response = await fetch(apiUrl("/api/login"), {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({username: $("username").value.trim(), password: $("password").value})
+        });
+        if (!response.ok) {
+          $("loginMessage").textContent = "Forkert login.";
+          return;
+        }
+        const pairResponse = await fetch(apiUrl("/api/pair/confirm"), {
+          method: "POST", headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({code})
+        });
+        if (!pairResponse.ok) {
+          $("loginMessage").textContent = "Parringskoden er forkert eller udløbet.";
+          return;
+        }
+        $("login").classList.add("hidden");
+        $("tracking").classList.remove("hidden");
+        authenticated = true;
+        await loadLocation();
+      } catch (error) {
+        $("loginMessage").textContent = "GPS-serveren er ikke tilgængelig lige nu.";
+      }
+    };
+    $("unpairButton").onclick = async () => {
+      await fetch(apiUrl("/api/pair/unpair"), {method: "POST"});
+      authenticated = false;
+      $("tracking").classList.add("hidden");
+      $("login").classList.remove("hidden");
+      $("loginMessage").textContent = "Parringen er fjernet.";
+    };
+    $("refresh").onclick = loadLocation;
+    setInterval(() => {
+      if (authenticated) loadLocation();
+    }, 10000);
+  </script>
+</body>
+</html>
