@@ -7,7 +7,6 @@ sypers-visitor-stats.json
 # Android and local build output
 .gradle/
 **/build/
-*.apk
 
 # Local tooling and caches
 __pycache__/
