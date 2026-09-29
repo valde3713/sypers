@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sypers | Tryg telefoni</title>
+  <meta name="theme-color" content="#d96b3b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Sypers">
+  <link rel="manifest" href="/sypers.webmanifest">
+  <link rel="icon" href="/sypers-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/sypers-icon-192.png">
+  <style>
+    :root {
+      --ink: #263238;
+      --muted: #66747a;
+      --cream: #fffaf2;
+      --card: #ffffff;
+      --line: #eadfd2;
+      --orange: #d96b3b;
+      --orange-dark: #a94d27;
+      --green: #28785f;
+      --green-soft: #e8f5ef;
+      --red: #a84949;
+      --shadow: 0 16px 45px rgba(92, 61, 36, .10);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(145deg, #fffaf2 0%, #f5eee5 100%);
+      font-family: Georgia, "Times New Roman", serif;
+      overflow-x: hidden;
+    }
+    body { min-height: 100vh; }
+    body[data-theme="dark"] {
+      --ink: #f5eee5;
+      --muted: #c2b8ad;
+      --cream: #211c19;
+      --card: #2b2521;
+      --line: #51463d;
+      --green-soft: #213e34;
+      --red: #f0a49a;
+      background: linear-gradient(145deg, #211c19 0%, #302823 100%);
+    }
+    body[data-theme="dark"] .card,
+    body[data-theme="dark"] .tips { background: var(--card); }
+    body[data-theme="dark"] input { color: var(--ink); background: #211c19; }
+    body[data-theme="dark"] .number-item,
+    body[data-theme="dark"] .secondary { background: #3a2f29; }
+    body[data-theme="dark"] .hero { background: #4a3429; }
+    body.large-text {
+      font-size: 1.15rem;
+    }
+    body.large-text h1 { font-size: 2rem; }
+    body.large-text h2 { font-size: 1.8rem; }
+    body.large-text h3 { font-size: 1.4rem; }
+    button, input { font: inherit; }
+    button {
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:focus { outline: none; }
+    button:active { transform: translateY(1px); }
+    .shell {
+      width: min(430px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 0 16px 94px;
+      position: relative;
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; padding: 28px 0 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-size: 1.7rem; font-weight: bold; }
+    .brand-mark {
+      display: grid; place-items: center; width: 50px; height: 50px;
+      color: white; border-radius: 16px; background: var(--orange);
+      box-shadow: 0 8px 20px rgba(217, 107, 59, .24);
+    }
+    .header-link { color: var(--orange-dark); font-size: 1rem; }
+    .hero {
+      display: grid; grid-template-columns: 1fr; gap: 12px; align-items: center;
+      padding: 22px 18px; border-radius: 24px;
+      background: #f2ded0; box-shadow: var(--shadow);
+    }
+    .eyebrow { color: var(--orange-dark); font-size: .88rem; font-weight: bold; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 10px 0 12px; font-size: 1.8rem; line-height: 1.04; }
+    .hero p { max-width: 570px; margin: 0; color: #5d514b; font-size: 1.08rem; line-height: 1.55; }
+    .shield { display: grid; place-items: center; min-height: 85px; font-size: 5rem; }
+    .phone-card { padding: 20px 16px 18px; border: 1px solid var(--line); border-radius: 24px; background: var(--card); box-shadow: var(--shadow); }
+    .phone-display { min-height: 58px; padding: 8px 12px 14px; color: var(--ink); text-align: center; font-size: 2rem; letter-spacing: .08em; overflow-wrap: anywhere; }
+    .phone-display:empty::before { content: "Indtast nummer"; color: var(--muted); font-size: 1rem; letter-spacing: 0; }
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+    .key {
+      min-height: 58px; border: 1px solid var(--line); border-radius: 16px; color: var(--ink);
+      background: var(--cream); font-size: 1.45rem; font-weight: bold; box-shadow: 0 3px 0 rgba(92,61,36,.08);
+    }
+    .key small { display: block; color: var(--muted); font-size: .62rem; font-weight: normal; letter-spacing: .06em; }
+    .key:active { transform: translateY(2px); box-shadow: none; }
+    .key.action { color: var(--orange-dark); background: #fff7f1; }
+    .call-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .call-row .primary { min-height: 52px; }
+    .status {
+      display: flex; align-items: center; justify-content: space-between; gap: 13px; margin-top: 24px; padding: 12px 14px;
+      border: 1px solid #b9dfcf; border-radius: 15px; color: var(--green); background: var(--green-soft);
+      font-size: 1.08rem; font-weight: bold;
+    }
+    .status-label { display: flex; align-items: center; gap: 13px; }
+    .status.disabled { border-color: #e7b9b0; color: var(--red); background: #fff0ec; }
+    .dot { width: 13px; height: 13px; border-radius: 50%; background: #3aab79; box-shadow: 0 0 0 5px #cdebdc; }
+    .section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; margin: 34px 0 15px; }
+    h2 { margin: 0; font-size: 1.65rem; }
+    .section-title span { color: var(--muted); font-size: .98rem; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .card { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); box-shadow: var(--shadow); }
+    .card h3 { margin: 0 0 8px; font-size: 1.25rem; }
+    .card p { margin: 0 0 18px; color: var(--muted); line-height: 1.5; }
+    label { display: block; margin-bottom: 7px; font-weight: bold; }
+    input {
+      width: 100%; padding: 13px 14px; border: 2px solid var(--line); border-radius: 11px;
+      color: var(--ink); background: #fffdf9; font-size: 1.08rem;
+    }
+    input:focus { outline: 3px solid #f5cdb9; border-color: var(--orange); }
+    .form-row { display: flex; flex-direction: column; gap: 10px; }
+    .primary, .secondary {
+      border: 0; border-radius: 11px; padding: 13px 16px; font-weight: bold;
+    }
+    .primary { color: white; background: var(--orange); }
+    .primary:hover { background: var(--orange-dark); }
+    .secondary { color: var(--orange-dark); border: 1px solid #e6b49e; background: #fff7f1; }
+    .message { min-height: 25px; margin-top: 13px; font-weight: bold; }
+    .message.safe { color: var(--green); }
+    .message.danger { color: var(--red); }
+    .number-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .number-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px 14px; border-radius: 11px; background: #fff7f1;
+    }
+    .number-item strong { font-size: 1.05rem; }
+    .remove { padding: 7px 9px; border: 0; border-radius: 8px; color: var(--red); background: transparent; }
+    .remove:hover { background: #f9e5df; }
+    .empty { color: var(--muted); font-style: italic; }
+    .tips { margin: 18px 0 40px; padding: 20px 24px; border-left: 5px solid var(--orange); border-radius: 12px; background: #fff; }
+    .tips h3 { margin: 0 0 8px; }
+    .tips p { margin: 0; color: var(--muted); line-height: 1.5; }
+    footer { padding: 20px 0 35px; color: var(--muted); text-align: center; font-size: .9rem; }
+    .bottom-nav {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+      position: fixed; z-index: 2; bottom: 0; left: 50%; width: min(430px, 100%);
+      padding: 10px 12px 12px; transform: translateX(-50%);
+      border-top: 1px solid var(--line); background: rgba(255,250,242,.96);
+      box-shadow: 0 -8px 24px rgba(92,61,36,.10); backdrop-filter: blur(12px);
+    }
+    body[data-theme="dark"] .bottom-nav { background: rgba(33,28,25,.96); }
+    body.settings-open { overflow: hidden; }
+    .bottom-nav button {
+      min-height: 50px; border: 0; border-radius: 13px; color: var(--muted); background: transparent;
+      font-size: .75rem; font-weight: bold;
+    }
+    .bottom-nav button span { display: block; margin-bottom: 3px; font-size: 1.25rem; }
+    .bottom-nav button.active, .bottom-nav button:hover { color: var(--orange-dark); background: #fff0e7; }
+    .header-link { display: none; }
+    .account-actions { display: flex; align-items: center; gap: 8px; }
+    .account-email { max-width: 120px; overflow: hidden; color: var(--muted); font-size: .82rem; text-overflow: ellipsis; white-space: nowrap; }
+    .logout { min-height: 46px; padding: 9px 12px; border: 1px solid #e6b49e; border-radius: 11px; color: var(--orange-dark); background: #fff7f1; font-weight: bold; }
+    .settings-button {
+      display: grid; place-items: center; width: 46px; min-height: 46px; padding: 0;
+      border: 1px solid var(--line); border-radius: 11px; color: var(--ink);
+      background: var(--card); font-size: 1.35rem;
+    }
+    .settings-button:hover { border-color: var(--orange); background: #fff7f1; }
+    .settings-menu { display: none; position: fixed; inset: 0; z-index: 3; align-items: start; justify-items: center; overflow-y: auto; padding: 18px; background: rgba(30, 22, 18, .68); }
+    .settings-menu.open { display: grid; }
+    .settings-box { width: min(100%, 360px); max-height: calc(100vh - 36px); overflow-y: auto; padding: 24px; border-radius: 20px; background: var(--card); box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+    .settings-box h2 { margin-bottom: 20px; }
+    .profile-card {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 13px;
+      border: 1px solid var(--line); border-radius: 12px; background: #fff7f1;
+    }
+    body[data-theme="dark"] .profile-card { background: #3a2f29; }
+    .profile-icon {
+      display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px;
+      border-radius: 50%; color: #fff; background: var(--orange); font-size: 1.25rem;
+    }
+    .profile-card strong, .profile-card small { display: block; }
+    .profile-card small { margin-top: 3px; overflow: hidden; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; }
+    .settings-box label { margin: 15px 0 7px; }
+    .settings-box select { width: 100%; min-height: 46px; padding: 9px; border: 2px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--card); }
+    .close-settings { margin-top: 20px; width: 100%; }
+    .menu-logout { width: 100%; margin-top: 10px; }
+    .security-toggle {
+      min-height: 46px; padding: 9px 13px; border: 1px solid #b9dfcf; border-radius: 11px;
+      color: var(--green); background: var(--green-soft); font-weight: bold;
+    }
+    .security-toggle.off {
+      color: var(--red); border-color: #e7b9b0; background: #fff0ec;
+    }
+    .settings-option {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin: 15px 0 0; padding: 12px 13px; border: 1px solid var(--line);
+      border-radius: 11px; color: var(--ink); background: var(--cream);
+    }
+    .settings-option span { font-weight: bold; line-height: 1.3; }
+    .settings-option input { width: 22px; height: 22px; margin: 0; accent-color: var(--orange); }
+    .primary, .secondary, .remove { min-height: 46px; }
+    @media (max-width: 320px) {
+      .shell { padding: 0 8px 72px; }
+      header { gap: 8px; padding: 12px 0 10px; }
+      .brand { gap: 7px; font-size: 1.15rem; }
+      .brand-mark { width: 34px; height: 34px; border-radius: 11px; font-size: 1rem; }
+      .account-email { display: none; }
+      .settings-button { width: 38px; min-height: 38px; font-size: 1.1rem; }
+      .section-title { margin: 16px 0 9px; }
+      h2 { font-size: 1.25rem; }
+      .section-title span { font-size: .72rem; }
+      .phone-card, .card { padding: 12px 10px; border-radius: 16px; }
+      .phone-card h3, .card h3 { font-size: 1rem; }
+      .phone-display { min-height: 42px; padding: 4px 6px 8px; font-size: 1.35rem; }
+      .keypad { gap: 5px; }
+      .key { min-height: 42px; border-radius: 10px; font-size: 1.05rem; }
+      .key small { font-size: .48rem; }
+      .call-row { gap: 5px; margin-top: 8px; }
+      .call-row .primary, .call-row .secondary { min-height: 42px; padding: 8px 5px; font-size: .76rem; }
+      .bottom-nav { padding: 5px 6px 7px; }
+      .bottom-nav button { min-height: 42px; font-size: 0; }
+      .bottom-nav button span:first-child { margin: 0; font-size: 1.1rem; }
+      .tips, footer { font-size: .78rem; }
+    }
+    @media (min-width: 600px) {
+      .shell { width: min(760px, 100%); padding-left: 28px; padding-right: 28px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .phone-card { max-width: 620px; margin: 0 auto; }
+      .bottom-nav { width: min(760px, 100%); }
+    }
+    @media (min-width: 700px) {
+      body { padding: 22px 0; }
+      .shell {
+        min-height: calc(100vh - 44px);
+        border: 1px solid var(--line);
+        border-radius: 34px;
+        background: rgba(255, 255, 255, .38);
+        box-shadow: 0 20px 60px rgba(92, 61, 36, .14);
+      }
+    }
+    @media (min-width: 1000px) {
+      .shell { width: min(1040px, calc(100% - 44px)); padding-left: 40px; padding-right: 40px; }
+      .phone-card { max-width: 680px; }
+      .bottom-nav { width: min(1040px, calc(100% - 44px)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand"><div class="brand-mark" aria-hidden="true">🛡️</div><span>Sypers</span></div>
+      <div class="header-link">Tryg telefoni for alle</div>
+      <div class="account-actions">
+        <span class="account-email" id="accountEmail"></span>
+        <button class="settings-button" id="settingsButton" type="button" data-i18n-aria-label="openSettings" data-i18n-title="settingsTitle" aria-label="Åbn indstillinger" title="Indstillinger">⚙️</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="section-title">
+        <h2 data-i18n="manage">Telefon</h2>
+        <span id="blockedCount">0 blokerede numre</span>
+      </div>
+      <section class="phone-card" id="phoneSection">
+        <h3 data-i18n="callTitle">☎ Ring til et nummer</h3>
+        <div class="phone-display" id="phoneDisplay" aria-live="polite"></div>
+        <input id="callNumber" type="tel" inputmode="tel" data-i18n-placeholder="phonePlaceholder" placeholder="F.eks. 12 34 56 78" aria-label="Telefonnummer" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;">
+        <div class="keypad" aria-label="Telefonens tastatur">
+          <button class="key" type="button" data-key="1">1</button>
+          <button class="key" type="button" data-key="2">2<small>ABC</small></button>
+          <button class="key" type="button" data-key="3">3<small>DEF</small></button>
+          <button class="key" type="button" data-key="4">4<small>GHI</small></button>
+          <button class="key" type="button" data-key="5">5<small>JKL</small></button>
+          <button class="key" type="button" data-key="6">6<small>MNO</small></button>
+          <button class="key" type="button" data-key="7">7<small>PQRS</small></button>
+          <button class="key" type="button" data-key="8">8<small>TUV</small></button>
+          <button class="key" type="button" data-key="9">9<small>WXYZ</small></button>
+          <button class="key" type="button" data-key="*">*</button>
+          <button class="key" type="button" data-key="0">0<small>+</small></button>
+          <button class="key action" type="button" data-key="backspace" aria-label="Slet">⌫</button>
+        </div>
+        <div class="call-row">
+          <button class="primary" id="callButton" type="button" data-i18n="callButton">☎ Ring</button>
+          <button class="secondary" id="blockFromPhone" type="button" data-i18n="blockButton">🚫 Bloker</button>
+        </div>
+        <div class="message" id="callMessage" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="grid" id="blockSection" style="margin-top:18px;">
+        <article class="card" id="checkSection">
+          <h3 data-i18n="checkTitle">🔎 Tjek et telefonnummer</h3>
+          <p data-i18n="checkText">Er du usikker på, hvem der ringer? Tjek nummeret, før du ringer tilbage.</p>
+          <label for="checkNumber" data-i18n="phoneLabel">Telefonnummer</label>
+          <div class="form-row">
+            <input id="checkNumber" type="tel" inputmode="tel" data-i18n-placeholder="phonePlaceholder" placeholder="F.eks. 12 34 56 78">
+            <button class="primary" id="checkButton" type="button" data-i18n="checkButton">Tjek</button>
+          </div>
+          <div class="message" id="checkMessage" role="status" aria-live="polite"></div>
+        </article>
+
+        <article class="card">
+          <h3 data-i18n="blockTitle">🚫 Bloker et nummer</h3>
+          <p data-i18n="blockText">Tilføj et nummer, du ikke ønsker at modtage opkald fra.</p>
+          <label for="blockNumber" data-i18n="phoneLabel">Telefonnummer</label>
+          <div class="form-row">
+            <input id="blockNumber" type="tel" inputmode="tel" data-i18n-placeholder="phonePlaceholder" placeholder="F.eks. 12 34 56 78">
+            <button class="primary" id="blockButton" type="button" data-i18n="blockButton">Bloker</button>
+          </div>
+          <div class="message" id="blockMessage" role="status" aria-live="polite"></div>
+        </article>
+      </section>
+
+      <section class="card" id="blockedSection" style="margin-top:18px;">
+        <div class="section-title" style="margin:0 0 14px;">
+          <h3 data-i18n="blockedTitle">Blokerede numre</h3>
+          <button class="secondary" id="clearButton" type="button" data-i18n="clearButton">Fjern alle</button>
+        </div>
+        <ul class="number-list" id="numberList"></ul>
+      </section>
+
+      <aside class="tips">
+        <h3 data-i18n="tipTitle">Et godt råd fra Sypers</h3>
+        <p data-i18n="tipText">Giv aldrig MitID-, kort- eller netbankoplysninger i telefonen. Er du i tvivl, så læg på og ring selv til virksomheden på det officielle nummer.</p>
+      </aside>
+    </main>
+    <footer data-i18n="footer">Sypers er en prototype. Den beskytter numre, du selv tilføjer, direkte i denne browser.</footer>
+  </div>
+  <nav class="bottom-nav" aria-label="Hovedmenu">
+    <button class="active" type="button" data-scroll="phoneSection"><span>☎</span><span data-i18n="navPhone">Telefon</span></button>
+    <button type="button" data-scroll="blockSection"><span>🚫</span><span data-i18n="navBlock">Bloker</span></button>
+    <button type="button" data-scroll="blockedSection"><span>📋</span><span data-i18n="navList">Liste</span></button>
+  </nav>
+  <div class="settings-menu" id="settingsMenu" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <section class="settings-box">
+      <h2 id="settingsTitle" data-i18n="settingsTitle">Indstillinger</h2>
+      <div class="profile-card">
+        <span class="profile-icon" aria-hidden="true">👤</span>
+        <span><strong data-i18n="me">Mig</strong><small id="settingsAccountEmail">Gæst</small></span>
+      </div>
+      <label for="profileName" data-i18n="profileName">Navn</label>
+      <input id="profileName" type="text" autocomplete="name" placeholder="Dit navn">
+      <label for="profileAge" data-i18n="profileAge">Alder</label>
+      <input id="profileAge" type="number" min="1" max="120" placeholder="Din alder">
+      <label for="profilePhone" data-i18n="profilePhone">Telefonnummer</label>
+      <input id="profilePhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="F.eks. 12 34 56 78">
+      <button class="secondary" id="importContacts" type="button" data-i18n="importContacts">📇 Hent kontakter</button>
+      <div class="message" id="contactsMessage" role="status" aria-live="polite"></div>
+      <ul class="number-list" id="contactsList"></ul>
+      <label data-i18n="protectionSetting">Beskyttelse</label>
+      <button class="security-toggle" id="securityToggle" type="button" aria-pressed="true" data-i18n="securityOn">Sikkerhed: Tændt</button>
+      <label class="settings-option">
+        <span data-i18n="autoBlockSetting">Bloker automatisk risikonumre</span>
+        <input id="autoBlockRisk" type="checkbox">
+      </label>
+      <label class="settings-option">
+        <span data-i18n="confirmBlockSetting">Bekræft før blokering</span>
+        <input id="confirmBlock" type="checkbox" checked>
+      </label>
+      <label data-i18n="largeTextSetting">Tilgængelighed</label>
+      <button class="secondary" id="largeTextToggle" type="button" aria-pressed="false" data-i18n="largeText">Store bogstaver</button>
+      <label for="themeSelect" data-i18n="theme">Tema</label>
+      <select id="themeSelect">
+        <option value="light" data-i18n="lightTheme">Lyst tema</option>
+        <option value="dark" data-i18n="darkTheme">Mørkt tema</option>
+      </select>
+      <label class="settings-option">
+        <span data-i18n="gpsSetting">GPS-sporing</span>
+        <input id="gpsTracking" type="checkbox">
+      </label>
+      <label for="languageSelect" data-i18n="language">Sprog</label>
+      <select id="languageSelect" aria-label="Vælg sprog">
+        <option value="da">Dansk</option>
+        <option value="en">English</option>
+        <option value="no">Norsk</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+      </select>
+      <button class="primary close-settings" id="closeSettings" type="button" data-i18n="saveClose">Gem og luk</button>
+      <button class="logout menu-logout" id="logoutButton" type="button" data-i18n="logout">Log ud</button>
+    </section>
+  </div>
+
+  <script>
+    const sessionKey = "sypersLoggedIn";
+    const accountKey = "sypersAccount";
+    if (!localStorage.getItem(sessionKey)) {
+      window.location.replace("sypers_login.html");
+    }
+
+    const storageKey = "sypersBlockedNumbers";
+    const protectionKey = "sypersProtectionEnabled";
+    const autoBlockKey = "sypersAutoBlockRisk";
+    const confirmBlockKey = "sypersConfirmBlock";
+    const largeTextKey = "sypersLargeText";
+    const themeKey = "sypersTheme";
+    const gpsTrackingKey = "sypersGpsTracking";
+    const languageKey = "sypersLanguage";
+    const nativeSettings = window.SypersSettings;
+    function readSetting(key, fallback) {
+      const nativeValue = nativeSettings?.get(key);
+      if (nativeValue !== null && nativeValue !== undefined) return nativeValue;
+      return localStorage.getItem(key) ?? fallback;
+    }
+    function writeSetting(key, value) {
+      localStorage.setItem(key, value);
+      nativeSettings?.set(key, value);
+    }
+    const knownUnsafeNumbers = [
+      { number: "18656304266", note: "Falske bank-sms'er" },
+      { number: "14697097630", note: "Falske pakkeleveringer / DHL / FedEx-svindel" }
+    ];
+    const elevatedRiskPrefixes = [
+      { prefix: "91", label: "+91 (Indien)", note: "Rapporteret ved falske Microsoft- og Apple-supportopkald samt banksvindel" },
+      { prefix: "234", label: "+234 (Nigeria)", note: "Rapporteret ved forskuds-svindel og falske jobtilbud" },
+      { prefix: "7", label: "+7 (Rusland / Kasakhstan)", note: "Rapporteret ved phishing, falsk kundeservice og it-kriminalitet" }
+    ];
+    const savedNumbers = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    let blockedNumbers = [...new Set([...knownUnsafeNumbers.map(entry => entry.number), ...savedNumbers])];
+    let protectionEnabled = readSetting(protectionKey, "true") !== "false";
+    const session = JSON.parse(localStorage.getItem(sessionKey) || "null");
+    let account = JSON.parse(localStorage.getItem(accountKey) || "null");
+    const translations = {
+      da: { openSettings:"Åbn indstillinger",remove:"Fjern",confirmClear:"Vil du fjerne alle blokerede numre?", eyebrow:"Din personlige telefonvagt",welcome:"Du er beskyttet mod usikre numre.",heroText:"Sypers hjælper dig med at holde svindel og uønskede opkald væk. Du bestemmer altid selv, hvem der må ringe.",manage:"Administrer dine numre",checkTitle:"🔎 Tjek et telefonnummer",checkText:"Er du usikker på, hvem der ringer? Tjek nummeret, før du ringer tilbage.",phoneLabel:"Telefonnummer",phonePlaceholder:"F.eks. 12 34 56 78",checkButton:"Tjek",blockTitle:"🚫 Bloker et nummer",blockText:"Tilføj et nummer, du ikke ønsker at modtage opkald fra.",blockButton:"Bloker",blockedTitle:"Blokerede numre",clearButton:"Fjern alle",tipTitle:"Et godt råd fra Sypers",tipText:"Giv aldrig MitID-, kort- eller netbankoplysninger i telefonen. Er du i tvivl, så læg på og ring selv til virksomheden på det officielle nummer.",protectionOn:"Beskyttelse er slået til",protectionOff:"Beskyttelse er slået fra",securityOn:"Sikkerhed: Tændt",securityOff:"Sikkerhed: Slukket",settingsTitle:"Indstillinger",me:"Mig",guest:"Gæst",theme:"Tema",lightTheme:"Lyst tema",darkTheme:"Mørkt tema",language:"Sprog",saveClose:"Gem og luk",logout:"Log ud",empty:"Du har endnu ikke blokeret nogen numre.",countOne:"blokeret nummer",countMany:"blokerede numre",emptyNumber:"Skriv et telefonnummer først.",securityOffMessage:"Sikkerheden er slukket. Tænd den øverst for at tjekke nummeret.",alreadyBlocked:"Nummeret er allerede blokeret.",nowBlocked:"Nummeret er nu blokeret.",notBlocked:"Nummeret er ikke på din blokeringsliste.",blocked:"Dette nummer er blokeret i Sypers.",largeTextSetting:"Tilgængelighed",largeText:"Store bogstaver",gpsSetting:"GPS-sporing (frivillig)",footer:"Sypers er en prototype. Den beskytter numre, du selv tilføjer, direkte i denne browser."},
+      en: { eyebrow:"Your personal phone guard",welcome:"You are protected from unsafe numbers.",heroText:"Sypers helps keep scams and unwanted calls away. You always decide who may call you.",manage:"Manage your numbers",checkTitle:"🔎 Check a phone number",checkText:"Not sure who is calling? Check the number before calling back.",phoneLabel:"Phone number",phonePlaceholder:"For example 12 34 56 78",checkButton:"Check",blockTitle:"🚫 Block a number",blockText:"Add a number you do not want to receive calls from.",blockButton:"Block",blockedTitle:"Blocked numbers",clearButton:"Remove all",tipTitle:"A tip from Sypers",tipText:"Never give MitID, card or online banking details over the phone. If in doubt, hang up and call the company using its official number.",protectionOn:"Protection is on",protectionOff:"Protection is off",securityOn:"Security: On",securityOff:"Security: Off",settingsTitle:"Settings",me:"Me",guest:"Guest",theme:"Theme",lightTheme:"Light theme",darkTheme:"Dark theme",language:"Language",saveClose:"Save and close",logout:"Log out",empty:"You have no blocked numbers yet.",countOne:"blocked number",countMany:"blocked numbers",emptyNumber:"Enter a phone number first.",securityOffMessage:"Security is off. Turn it on above to check a number.",alreadyBlocked:"The number is already blocked.",nowBlocked:"The number is now blocked.",notBlocked:"The number is not on your block list.",blocked:"This number is blocked in Sypers.",footer:"Sypers is a prototype. It protects numbers you add directly in this browser."},
+      no: { eyebrow:"Din personlige telefonvakt",welcome:"Du er beskyttet mot usikre numre.",heroText:"Sypers hjelper deg med å holde svindel og uønskede samtaler borte. Du bestemmer alltid hvem som kan ringe deg.",manage:"Administrer numrene dine",checkTitle:"🔎 Sjekk et telefonnummer",checkText:"Usikker på hvem som ringer? Sjekk nummeret før du ringer tilbake.",phoneLabel:"Telefonnummer",phonePlaceholder:"For eksempel 12 34 56 78",checkButton:"Sjekk",blockTitle:"🚫 Blokker et nummer",blockText:"Legg til et nummer du ikke vil motta samtaler fra.",blockButton:"Blokker",blockedTitle:"Blokkerte numre",clearButton:"Fjern alle",tipTitle:"Et råd fra Sypers",tipText:"Gi aldri fra deg BankID-, kort- eller nettbankopplysninger på telefonen. Er du i tvil, legg på og ring virksomheten på det offisielle nummeret.",protectionOn:"Beskyttelse er på",protectionOff:"Beskyttelse er av",securityOn:"Sikkerhet: På",securityOff:"Sikkerhet: Av",settingsTitle:"Innstillinger",me:"Meg",guest:"Gjest",theme:"Tema",lightTheme:"Lyst tema",darkTheme:"Mørkt tema",language:"Språk",saveClose:"Lagre og lukk",logout:"Logg ut",empty:"Du har ingen blokkerte numre ennå.",countOne:"blokkert nummer",countMany:"blokkerte numre",emptyNumber:"Skriv inn et telefonnummer først.",securityOffMessage:"Sikkerheten er av. Slå den på ovenfor for å sjekke et nummer.",alreadyBlocked:"Nummeret er allerede blokkert.",nowBlocked:"Nummeret er nå blokkert.",notBlocked:"Nummeret står ikke på blokkeringslisten din.",blocked:"Dette nummeret er blokkert i Sypers.",footer:"Sypers er en prototype. Den beskytter numre du legger til, direkte i denne nettleseren."},
+      de: { eyebrow:"Ihre persönliche Telefonwache",welcome:"Sie sind vor unsicheren Nummern geschützt.",heroText:"Sypers hilft Ihnen, Betrug und unerwünschte Anrufe fernzuhalten. Sie entscheiden immer, wer Sie anrufen darf.",manage:"Ihre Nummern verwalten",checkTitle:"🔎 Telefonnummer prüfen",checkText:"Sie wissen nicht, wer anruft? Prüfen Sie die Nummer, bevor Sie zurückrufen.",phoneLabel:"Telefonnummer",phonePlaceholder:"Zum Beispiel 12 34 56 78",checkButton:"Prüfen",blockTitle:"🚫 Nummer blockieren",blockText:"Fügen Sie eine Nummer hinzu, von der Sie keine Anrufe erhalten möchten.",blockButton:"Blockieren",blockedTitle:"Blockierte Nummern",clearButton:"Alle entfernen",tipTitle:"Ein Tipp von Sypers",tipText:"Geben Sie niemals MitID-, Karten- oder Online-Banking-Daten am Telefon weiter. Legen Sie im Zweifel auf und rufen Sie das Unternehmen über die offizielle Nummer an.",protectionOn:"Schutz ist aktiv",protectionOff:"Schutz ist deaktiviert",securityOn:"Sicherheit: An",securityOff:"Sicherheit: Aus",settingsTitle:"Einstellungen",me:"Ich",guest:"Gast",theme:"Thema",lightTheme:"Helles Thema",darkTheme:"Dunkles Thema",language:"Sprache",saveClose:"Speichern und schließen",logout:"Abmelden",empty:"Sie haben noch keine Nummern blockiert.",countOne:"blockierte Nummer",countMany:"blockierte Nummern",emptyNumber:"Geben Sie zuerst eine Telefonnummer ein.",securityOffMessage:"Die Sicherheit ist deaktiviert. Aktivieren Sie sie oben, um eine Nummer zu prüfen.",alreadyBlocked:"Die Nummer ist bereits blockiert.",nowBlocked:"Die Nummer ist jetzt blockiert.",notBlocked:"Die Nummer steht nicht auf Ihrer Sperrliste.",blocked:"Diese Nummer ist in Sypers blockiert.",footer:"Sypers ist ein Prototyp. Nummern, die Sie hinzufügen, werden direkt in diesem Browser geschützt."},
+      es: { eyebrow:"Su protección telefónica personal",welcome:"Está protegido contra números sospechosos.",heroText:"Sypers ayuda a mantener alejadas las estafas y las llamadas no deseadas. Usted decide quién puede llamarle.",manage:"Administrar sus números",checkTitle:"🔎 Comprobar un número",checkText:"¿No sabe quién llama? Compruebe el número antes de devolver la llamada.",phoneLabel:"Número de teléfono",phonePlaceholder:"Por ejemplo, 12 34 56 78",checkButton:"Comprobar",blockTitle:"🚫 Bloquear un número",blockText:"Añada un número del que no quiera recibir llamadas.",blockButton:"Bloquear",blockedTitle:"Números bloqueados",clearButton:"Eliminar todos",tipTitle:"Un consejo de Sypers",tipText:"Nunca facilite datos de MitID, tarjetas o banca en línea por teléfono. Si tiene dudas, cuelgue y llame a la empresa usando su número oficial.",protectionOn:"La protección está activada",protectionOff:"La protección está desactivada",securityOn:"Seguridad: Activada",securityOff:"Seguridad: Desactivada",settingsTitle:"Configuración",me:"Yo",guest:"Invitado",theme:"Tema",lightTheme:"Tema claro",darkTheme:"Tema oscuro",language:"Idioma",saveClose:"Guardar y cerrar",logout:"Cerrar sesión",empty:"Aún no tiene números bloqueados.",countOne:"número bloqueado",countMany:"números bloqueados",emptyNumber:"Escriba primero un número de teléfono.",securityOffMessage:"La seguridad está desactivada. Actívela arriba para comprobar un número.",alreadyBlocked:"El número ya está bloqueado.",nowBlocked:"El número está bloqueado.",notBlocked:"El número no está en su lista de bloqueados.",blocked:"Este número está bloqueado en Sypers.",footer:"Sypers es un prototipo. Protege los números que añade directamente en este navegador."}
+    };
+    Object.assign(translations.en, { openSettings:"Open settings", remove:"Remove", confirmClear:"Remove all blocked numbers?", guest:"Guest" });
+    Object.assign(translations.no, { openSettings:"Åpne innstillinger", remove:"Fjern", confirmClear:"Vil du fjerne alle blokkerte numre?", guest:"Gjest" });
+    Object.assign(translations.de, { openSettings:"Einstellungen öffnen", remove:"Entfernen", confirmClear:"Möchten Sie alle blockierten Nummern entfernen?", guest:"Gast" });
+    Object.assign(translations.es, { openSettings:"Abrir configuración", remove:"Eliminar", confirmClear:"¿Eliminar todos los números bloqueados?", guest:"Invitado" });
+    Object.assign(translations.da, { navPhone:"Telefon", navBlock:"Bloker", navList:"Liste", navSettings:"Indstillinger" });
+    Object.assign(translations.en, { navPhone:"Phone", navBlock:"Block", navList:"List", navSettings:"Settings" });
+    Object.assign(translations.no, { navPhone:"Telefon", navBlock:"Blokker", navList:"Liste", navSettings:"Innstillinger" });
+    Object.assign(translations.de, { navPhone:"Telefon", navBlock:"Blockieren", navList:"Liste", navSettings:"Einstellungen" });
+    Object.assign(translations.es, { navPhone:"Teléfono", navBlock:"Bloquear", navList:"Lista", navSettings:"Configuración" });
+    const t = key => translations[language][key] || translations.da[key];
+    let language = readSetting(languageKey, "da");
+    Object.assign(translations.da, { callTitle:"☎ Ring til et nummer", callButton:"Ring", protectionSetting:"Beskyttelse" });
+    Object.assign(translations.en, { callTitle:"☎ Call a number", callButton:"Call", protectionSetting:"Protection" });
+    Object.assign(translations.no, { callTitle:"☎ Ring et nummer", callButton:"Ring", protectionSetting:"Beskyttelse" });
+    Object.assign(translations.de, { callTitle:"☎ Eine Nummer anrufen", callButton:"Anrufen", protectionSetting:"Schutz" });
+    Object.assign(translations.es, { callTitle:"☎ Llamar a un número", callButton:"Llamar", protectionSetting:"Protección" });
+    Object.assign(translations.da, { autoBlockSetting:"Bloker automatisk risikonumre", confirmBlockSetting:"Bekræft før blokering" });
+    Object.assign(translations.en, { autoBlockSetting:"Automatically block risky numbers", confirmBlockSetting:"Confirm before blocking" });
+    Object.assign(translations.no, { autoBlockSetting:"Blokker risikonumre automatisk", confirmBlockSetting:"Bekreft før blokkering" });
+    Object.assign(translations.de, { autoBlockSetting:"Risikonummer automatisch blockieren", confirmBlockSetting:"Vor dem Blockieren bestätigen" });
+    Object.assign(translations.es, { autoBlockSetting:"Bloquear números de riesgo automáticamente", confirmBlockSetting:"Confirmar antes de bloquear" });
+    Object.assign(translations.da, { profileName:"Navn", profileAge:"Alder", profilePhone:"Telefonnummer" });
+    Object.assign(translations.en, { profileName:"Name", profileAge:"Age", profilePhone:"Phone number" });
+    Object.assign(translations.no, { profileName:"Navn", profileAge:"Alder", profilePhone:"Telefonnummer" });
+    Object.assign(translations.de, { profileName:"Name", profileAge:"Alter", profilePhone:"Telefonnummer" });
+    Object.assign(translations.es, { profileName:"Nombre", profileAge:"Edad", profilePhone:"Número de teléfono" });
+    Object.assign(translations.da, { importContacts:"📇 Hent kontakter", contactsLoaded:"Kontakter hentet", contactsUnavailable:"Kontaktadgang er ikke tilgængelig i denne version." });
+    Object.assign(translations.en, { importContacts:"📇 Load contacts", contactsLoaded:"Contacts loaded", contactsUnavailable:"Contact access is not available in this version." });
+    Object.assign(translations.no, { importContacts:"📇 Hent kontakter", contactsLoaded:"Kontakter hentet", contactsUnavailable:"Kontakttilgang er ikke tilgjengelig i denne versjonen." });
+    Object.assign(translations.de, { importContacts:"📇 Kontakte laden", contactsLoaded:"Kontakte geladen", contactsUnavailable:"Der Kontaktzugriff ist in dieser Version nicht verfügbar." });
+    Object.assign(translations.es, { importContacts:"📇 Cargar contactos", contactsLoaded:"Contactos cargados", contactsUnavailable:"El acceso a contactos no está disponible en esta versión." });
+    const normalize = number => number.replace(/\D/g, "");
+    const hasRiskCountryCode = number => {
+      const international = number.trim().replace(/^00/, "+");
+      return elevatedRiskPrefixes.find(entry =>
+        international.startsWith(`+${entry.prefix}`)
+      );
+    };
+    const formatNumber = number => {
+      if (number.length === 8) return number.replace(/(\d{2})(?=\d)/g, "$1 ").trim();
+      if (number.length === 11 && number.startsWith("1")) return `+1 ${number.slice(1, 4)} ${number.slice(4, 7)} ${number.slice(7)}`;
+      return number;
+    };
+
+    function save() {
+      localStorage.setItem(storageKey, JSON.stringify(blockedNumbers));
+      if (window.SypersContacts) {
+        window.SypersContacts.syncBlockedNumbers(JSON.stringify(blockedNumbers));
+      }
+      render();
+    }
+
+    function render() {
+      const list = document.getElementById("numberList");
+      document.getElementById("accountEmail").textContent = session?.email || "Gæst";
+      document.getElementById("settingsAccountEmail").textContent = session?.email || "Gæst";
+      document.getElementById("profileName").value = account?.profile?.name || "";
+      document.getElementById("profileAge").value = account?.profile?.age || "";
+      document.getElementById("profilePhone").value = account?.profile?.phone || "";
+      const toggle = document.getElementById("securityToggle");
+      toggle.textContent = protectionEnabled ? t("securityOn") : t("securityOff");
+      toggle.classList.toggle("off", !protectionEnabled);
+      toggle.setAttribute("aria-pressed", String(protectionEnabled));
+      document.documentElement.lang = language;
+      document.querySelectorAll("[data-i18n]").forEach(element => {
+        element.textContent = t(element.dataset.i18n);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(element => {
+        element.placeholder = t(element.dataset.i18nPlaceholder);
+      });
+      document.querySelectorAll("[data-i18n-aria-label]").forEach(element => {
+        element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach(element => {
+        element.title = t(element.dataset.i18nTitle);
+      });
+      document.getElementById("blockedCount").textContent =
+        `${blockedNumbers.length} ${blockedNumbers.length === 1 ? t("countOne") : t("countMany")}`;
+      list.innerHTML = "";
+      if (!blockedNumbers.length) {
+        list.innerHTML = `<li class="empty">${t("empty")}</li>`;
+        return;
+      }
+
+      blockedNumbers.forEach(number => {
+        const item = document.createElement("li");
+        item.className = "number-item";
+        const knownNumber = knownUnsafeNumbers.find(entry => entry.number === number);
+        item.innerHTML = `<span><strong>${formatNumber(number)}</strong>${knownNumber ? `<br><small>${knownNumber.note}</small>` : ""}</span><button class="remove" type="button" data-number="${number}">${t("remove")}</button>`;
+        list.appendChild(item);
+      });
+    }
+
+    function applyPreferences() {
+      const theme = readSetting(themeKey, "light") === "dark" ? "dark" : "light";
+      document.body.dataset.theme = theme;
+      document.getElementById("themeSelect").value = theme;
+      const largeText = readSetting(largeTextKey, "false") === "true";
+      document.body.classList.toggle("large-text", largeText);
+      document.getElementById("largeTextToggle").setAttribute("aria-pressed", String(largeText));
+      document.getElementById("languageSelect").value = language;
+      document.getElementById("autoBlockRisk").checked = readSetting(autoBlockKey, "false") === "true";
+      document.getElementById("confirmBlock").checked = readSetting(confirmBlockKey, "true") !== "false";
+      document.getElementById("gpsTracking").checked = readSetting(gpsTrackingKey, "false") === "true";
+      render();
+    }
+
+    function persistSettings() {
+      if (account) {
+        account.profile = {
+          name: document.getElementById("profileName").value.trim(),
+          age: Number(document.getElementById("profileAge").value) || "",
+          phone: document.getElementById("profilePhone").value.trim()
+        };
+        localStorage.setItem(accountKey, JSON.stringify(account));
+      }
+      writeSetting(autoBlockKey, String(document.getElementById("autoBlockRisk").checked));
+      writeSetting(confirmBlockKey, String(document.getElementById("confirmBlock").checked));
+      writeSetting(languageKey, document.getElementById("languageSelect").value);
+      writeSetting(themeKey, document.getElementById("themeSelect").value);
+      const gpsEnabled = document.getElementById("gpsTracking").checked;
+      writeSetting(gpsTrackingKey, String(gpsEnabled));
+      if (window.SypersLocation) {
+        if (gpsEnabled) window.SypersLocation.start();
+        else window.SypersLocation.stop();
+      }
+    }
+
+    document.getElementById("settingsButton").addEventListener("click", () => {
+      document.getElementById("settingsMenu").classList.add("open");
+      document.body.classList.add("settings-open");
+    });
+
+    document.getElementById("closeSettings").addEventListener("click", () => {
+      persistSettings();
+      language = document.getElementById("languageSelect").value;
+      writeSetting(languageKey, language);
+      document.getElementById("settingsMenu").classList.remove("open");
+      document.body.classList.remove("settings-open");
+      applyPreferences();
+    });
+
+    document.getElementById("largeTextToggle").addEventListener("click", () => {
+      const enabled = readSetting(largeTextKey, "false") !== "true";
+      writeSetting(largeTextKey, String(enabled));
+      applyPreferences();
+    });
+
+    document.getElementById("themeSelect").addEventListener("change", event => {
+      writeSetting(themeKey, event.target.value);
+      applyPreferences();
+    });
+
+    document.getElementById("languageSelect").addEventListener("change", event => {
+      language = event.target.value;
+      writeSetting(languageKey, language);
+      render();
+    });
+
+    ["profileName", "profileAge", "profilePhone", "autoBlockRisk", "confirmBlock", "gpsTracking"].forEach(id => {
+      document.getElementById(id).addEventListener("input", persistSettings);
+      document.getElementById(id).addEventListener("change", persistSettings);
+    });
+    window.addEventListener("pagehide", persistSettings);
+
+    document.getElementById("logoutButton").addEventListener("click", () => {
+      localStorage.removeItem(sessionKey);
+      window.location.href = "sypers_login.html";
+    });
+
+    document.getElementById("securityToggle").addEventListener("click", () => {
+      protectionEnabled = !protectionEnabled;
+      writeSetting(protectionKey, String(protectionEnabled));
+      applyPreferences();
+    });
+
+    function loadContacts() {
+      const message = document.getElementById("contactsMessage");
+      const list = document.getElementById("contactsList");
+      if (!window.SypersContacts) {
+        message.textContent = t("contactsUnavailable");
+        return;
+      }
+      const contacts = JSON.parse(window.SypersContacts.getContacts());
+      list.innerHTML = "";
+      contacts.slice(0, 100).forEach(contact => {
+        const item = document.createElement("li");
+        item.className = "number-item";
+        item.innerHTML = `<span><strong></strong><br><small></small></span>`;
+        item.querySelector("strong").textContent = contact.name;
+        item.querySelector("small").textContent = contact.number;
+        list.appendChild(item);
+      });
+      message.textContent = contacts.length ? `${t("contactsLoaded")}: ${contacts.length}` : t("contactsUnavailable");
+    }
+    document.getElementById("importContacts").addEventListener("click", () => {
+      if (window.SypersContacts) window.SypersContacts.requestPermission();
+      loadContacts();
+    });
+    window.addEventListener("sypersContactsPermission", loadContacts);
+
+    const phoneInput = document.getElementById("callNumber");
+    const phoneDisplay = document.getElementById("phoneDisplay");
+    const updatePhoneDisplay = () => {
+      phoneDisplay.textContent = formatNumber(phoneInput.value.replace(/\*/g, ""));
+    };
+
+    document.querySelectorAll(".key").forEach(key => {
+      key.addEventListener("click", () => {
+        const value = key.dataset.key;
+        if (value === "backspace") {
+          phoneInput.value = phoneInput.value.slice(0, -1);
+        } else if (phoneInput.value.length < 18) {
+          phoneInput.value += value === "*" ? "*" : value;
+        }
+        updatePhoneDisplay();
+      });
+    });
+
+    document.getElementById("blockFromPhone").addEventListener("click", () => {
+      document.getElementById("blockNumber").value = phoneInput.value;
+      document.getElementById("blockButton").click();
+    });
+
+    document.getElementById("callButton").addEventListener("click", () => {
+      const number = normalize(phoneInput.value);
+      const message = document.getElementById("callMessage");
+      message.className = "message";
+      if (!number) {
+        message.className = "message danger";
+        message.textContent = t("emptyNumber");
+        return;
+      }
+      window.location.href = `tel:${number}`;
+    });
+
+    document.getElementById("checkButton").addEventListener("click", () => {
+      const checkInput = document.getElementById("checkNumber");
+      const number = normalize(checkInput.value);
+      const message = document.getElementById("checkMessage");
+      message.className = "message";
+      if (!number) { message.textContent = t("emptyNumber"); return; }
+      if (!protectionEnabled) {
+        message.className = "message danger";
+        message.textContent = t("securityOffMessage");
+        return;
+      }
+      const riskPrefix = hasRiskCountryCode(checkInput.value);
+      if (riskPrefix) {
+        if (readSetting(autoBlockKey, "false") === "true" && !blockedNumbers.includes(number)) {
+          blockedNumbers.push(number);
+          save();
+        }
+        message.className = "message danger";
+        message.textContent = `${riskPrefix.label}: Øget risiko. ${riskPrefix.note}.`;
+        return;
+      }
+      if (blockedNumbers.includes(number)) {
+        message.className = "message danger";
+        message.textContent = t("blocked");
+      } else {
+        message.className = "message safe";
+        message.textContent = t("notBlocked");
+      }
+    });
+
+    document.getElementById("blockButton").addEventListener("click", () => {
+      const input = document.getElementById("blockNumber");
+      const number = normalize(input.value);
+      const message = document.getElementById("blockMessage");
+      message.className = "message";
+      if (!number) { message.textContent = t("emptyNumber"); return; }
+      if (blockedNumbers.includes(number)) {
+        message.className = "message danger";
+        message.textContent = t("alreadyBlocked");
+        return;
+      }
+      if (readSetting(confirmBlockKey, "true") !== "false" &&
+          !confirm(`Bloker nummeret ${formatNumber(number)}?`)) return;
+      blockedNumbers.push(number);
+      input.value = "";
+      message.className = "message safe";
+      message.textContent = t("nowBlocked");
+      save();
+    });
+
+    document.getElementById("numberList").addEventListener("click", event => {
+      if (!event.target.matches(".remove")) return;
+      blockedNumbers = blockedNumbers.filter(number => number !== event.target.dataset.number);
+      save();
+    });
+
+    document.getElementById("clearButton").addEventListener("click", () => {
+      if (!blockedNumbers.length || !confirm(t("confirmClear"))) return;
+      blockedNumbers = [];
+      save();
+    });
+
+    document.querySelectorAll(".bottom-nav [data-scroll]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.getElementById(button.dataset.scroll).scrollIntoView({ behavior: "smooth", block: "start" });
+        document.querySelectorAll(".bottom-nav button").forEach(item => item.classList.remove("active"));
+        button.classList.add("active");
+      });
+    });
+
+    render();
+    if (window.SypersContacts) {
+      window.SypersContacts.syncBlockedNumbers(JSON.stringify(blockedNumbers));
+    }
+    updatePhoneDisplay();
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sypers-sw.js");
+    }
+  </script>
+</body>
+</html>
